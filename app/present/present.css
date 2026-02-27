@@ -1,7 +1,115 @@
 @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Quicksand:wght@400;600&display=swap');
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-/* Collage grid */
+/* ============================================================
+   THEME WRAPPER
+   ============================================================ */
+.present-wrapper {
+  min-height: 100vh;
+  background: var(--theme-bg, #1a1a2e);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.5s ease;
+}
+
+/* Emoji background pattern */
+.emoji-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.emoji-bg::before {
+  content: var(--theme-emoji, "");
+  position: absolute;
+  inset: -50%;
+  font-size: 3rem;
+  line-height: 4rem;
+  letter-spacing: 2rem;
+  word-spacing: 2rem;
+  white-space: pre-wrap;
+  word-break: break-all;
+  opacity: 0.07;
+  animation: emojiDrift 60s linear infinite;
+  /* Repeat the emoji many times */
+  text-shadow:
+    6rem 2rem 0 currentColor,
+    12rem -1rem 0 currentColor,
+    18rem 3rem 0 currentColor,
+    -3rem 5rem 0 currentColor;
+}
+@keyframes emojiDrift {
+  from { transform: translate(0, 0) rotate(-5deg); }
+  to { transform: translate(-3rem, -4rem) rotate(-5deg); }
+}
+
+.present-container {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.present-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================================
+   THEME PICKER
+   ============================================================ */
+.theme-picker {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.theme-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.5);
+}
+.theme-btn:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(1.1);
+}
+.theme-btn.active {
+  border-color: var(--btn-accent, rgba(255, 255, 255, 0.6));
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.15);
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.2);
+}
+
+/* ============================================================
+   COLLAGE GRID
+   ============================================================ */
 .tv-collage {
   display: grid;
   gap: 10px;
@@ -19,7 +127,32 @@
 .tv-cell:hover { transform: scale(1.03); }
 .tv-cell img, .tv-cell video { width: 100%; height: 100%; object-fit: cover; }
 
-/* Single photo viewer */
+.present-title {
+  font-family: 'Fredoka', sans-serif;
+  color: white;
+  font-size: 2rem;
+  margin-bottom: 16px;
+  opacity: 0.8;
+}
+
+.present-hint {
+  color: rgba(255,255,255,0.3);
+  margin-top: 16px;
+  font-size: 0.85rem;
+  font-family: 'Quicksand', sans-serif;
+}
+
+.present-counter {
+  color: rgba(255,255,255,0.4);
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 600;
+  margin-top: 16px;
+  font-size: 1rem;
+}
+
+/* ============================================================
+   SINGLE PHOTO VIEWER
+   ============================================================ */
 .viewer {
   display: flex;
   align-items: center;
@@ -35,6 +168,7 @@
   align-items: center;
   justify-content: center;
   min-width: 0;
+  position: relative;
 }
 
 .viewer-content img, .viewer-content video {
@@ -50,7 +184,31 @@
   to { opacity: 1; transform: scale(1); }
 }
 
-/* Nav buttons */
+/* ============================================================
+   DAY-OF-WEEK LABEL
+   ============================================================ */
+.day-label {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: white;
+  padding: 6px 20px;
+  border-radius: 50px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  animation: fadeIn 0.4s ease 0.2s backwards;
+}
+
+/* ============================================================
+   NAV BUTTONS
+   ============================================================ */
 .nav-btn {
   width: 64px;
   height: 64px;
@@ -72,6 +230,17 @@
 .nav-btn:hover {
   background: rgba(255, 255, 255, 0.25);
   transform: scale(1.1);
+}
+
+.nav-btn.finale-btn {
+  background: rgba(255, 215, 0, 0.25);
+  color: #FFE66D;
+  font-size: 1.8rem;
+  padding-bottom: 0;
+}
+.nav-btn.finale-btn:hover {
+  background: rgba(255, 215, 0, 0.4);
+  transform: scale(1.15);
 }
 
 /* Back to collage */
@@ -96,10 +265,159 @@
   color: white;
 }
 
+/* ============================================================
+   COUNTDOWN OVERLAY
+   ============================================================ */
+.countdown-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.countdown-number {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 12rem;
+  font-weight: 700;
+  animation: countPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  text-shadow: 0 0 60px currentColor;
+}
+
+@keyframes countPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) rotate(-10deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15) rotate(3deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* ============================================================
+   CONFETTI FINALE
+   ============================================================ */
+.finale-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.confetti-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.confetti-piece {
+  position: absolute;
+  top: -20px;
+  left: var(--x, 50vw);
+  width: var(--size, 10px);
+  height: var(--size, 10px);
+  background: var(--color, #FF6B6B);
+  border-radius: 2px;
+  animation: confettiFall var(--duration, 3s) ease-in var(--delay, 0s) infinite;
+  transform: rotate(var(--rotation, 0deg));
+}
+
+@keyframes confettiFall {
+  0% {
+    top: -5%;
+    opacity: 1;
+    transform: rotate(var(--rotation, 0deg)) translateX(0);
+  }
+  100% {
+    top: 105%;
+    opacity: 0.6;
+    transform: rotate(calc(var(--rotation, 0deg) + 720deg)) translateX(calc(var(--size, 10px) * 3));
+  }
+}
+
+.finale-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.finale-emoji {
+  font-size: 6rem;
+  animation: finaleFloat 2s ease-in-out infinite;
+}
+
+@keyframes finaleFloat {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-16px) scale(1.08); }
+}
+
+.finale-title {
+  font-family: 'Fredoka', sans-serif;
+  color: white;
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-top: 12px;
+  text-shadow: 0 4px 30px rgba(255, 255, 255, 0.2);
+}
+
+.finale-back-btn {
+  margin-top: 32px;
+  padding: 14px 32px;
+  border-radius: 50px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-family: 'Quicksand', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.finale-back-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.05);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
 @media (max-width: 600px) {
   .nav-btn {
     width: 48px;
     height: 48px;
     font-size: 1.8rem;
+  }
+  .nav-btn.finale-btn {
+    font-size: 1.4rem;
+  }
+  .countdown-number {
+    font-size: 8rem;
+  }
+  .finale-title {
+    font-size: 2.5rem;
+  }
+  .finale-emoji {
+    font-size: 4rem;
+  }
+  .theme-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+  .day-label {
+    font-size: 0.85rem;
+    padding: 5px 14px;
   }
 }

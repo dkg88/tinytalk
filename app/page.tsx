@@ -11,6 +11,17 @@ interface MediaItem {
   size: number;
 }
 
+// Theme definitions
+const THEMES: Record<string, { label: string; emoji: string; bg: string; accent: string }> = {
+  none:       { label: 'No Theme',   emoji: '',     bg: '#FFF8F0', accent: '' },
+  dinosaur:   { label: 'Dinosaur',   emoji: '\u{1F995}\u{1F996}', bg: '#e8f5e9', accent: '#6BCB77' },
+  firetruck:  { label: 'Firetruck',  emoji: '\u{1F692}\u{1F525}', bg: '#fce4ec', accent: '#FF6B6B' },
+  helicopter: { label: 'Helicopter', emoji: '\u{1F681}\u{1F4A8}', bg: '#e3f2fd', accent: '#5DADE2' },
+  train:      { label: 'Train',      emoji: '\u{1F682}\u{1F683}', bg: '#fff3e0', accent: '#F0B27A' },
+  space:      { label: 'Space',      emoji: '\u{1F680}\u{2B50}',  bg: '#ede7f6', accent: '#A78BFA' },
+  ocean:      { label: 'Ocean',      emoji: '\u{1F419}\u{1F420}', bg: '#e0f2f1', accent: '#4ECDC4' },
+};
+
 interface WeekData {
   weekKey: string;
   label: string;
@@ -54,6 +65,7 @@ export default function TinyTalk() {
   const [slideshowActive, setSlideshowActive] = useState(false);
   const [weeks, setWeeks] = useState<WeekData[]>([]);
   const [viewingWeek, setViewingWeek] = useState<string | null>(null);
+  const [theme, setTheme] = useState('none');
   const slideshowRef = useRef<NodeJS.Timeout | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -92,12 +104,37 @@ export default function TinyTalk() {
     }
   }, []);
 
+  // Load theme for current week
+  const loadTheme = useCallback(async (weekKey?: string) => {
+    try {
+      const wk = weekKey || getWeekKey();
+      const res = await fetch(`/api/theme?week=${wk}`);
+      if (res.ok) {
+        const data = await res.json();
+        setTheme(data.theme || 'none');
+      }
+    } catch {
+      setTheme('none');
+    }
+  }, []);
+
+  const saveTheme = async (t: string) => {
+    setTheme(t);
+    const wk = viewingWeek || getWeekKey();
+    await fetch('/api/theme', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ week: wk, theme: t }),
+    });
+  };
+
   useEffect(() => {
     if (authed) {
       loadPhotos();
       loadWeeks();
+      loadTheme();
     }
-  }, [authed, loadPhotos, loadWeeks]);
+  }, [authed, loadPhotos, loadWeeks, loadTheme]);
 
   // PIN auth
   const handlePin = async () => {
@@ -214,12 +251,14 @@ export default function TinyTalk() {
   const viewWeek = (weekKey: string) => {
     setViewingWeek(weekKey);
     loadPhotos(weekKey);
+    loadTheme(weekKey);
     setTab('present');
   };
 
   const backToCurrentWeek = () => {
     setViewingWeek(null);
     loadPhotos();
+    loadTheme();
     setTab('upload');
   };
 
@@ -260,12 +299,17 @@ export default function TinyTalk() {
     );
   }
 
+  const themeData = THEMES[theme] || THEMES.none;
+
   // ============================================================
   // MAIN APP
   // ============================================================
   return (
     <>
-      <div className="app">
+      <div className="app" style={themeData.accent ? {
+        '--theme-bg': themeData.bg,
+        '--theme-accent': themeData.accent,
+      } as React.CSSProperties : undefined}>
         {/* Header */}
         <div className="header">
           <h1 className="logo">Tiny Talk</h1>
@@ -327,6 +371,23 @@ export default function TinyTalk() {
                 onChange={e => e.target.files && handleFiles(e.target.files)}
                 style={{ display: 'none' }}
               />
+            </div>
+
+            <div className="theme-picker-main">
+              <p className="theme-label">Weekly Theme</p>
+              <div className="theme-grid">
+                {Object.entries(THEMES).map(([key, t]) => (
+                  <button
+                    key={key}
+                    className={`theme-option ${theme === key ? 'active' : ''}`}
+                    onClick={() => saveTheme(key)}
+                    style={key !== 'none' ? { '--opt-accent': t.accent } as React.CSSProperties : undefined}
+                  >
+                    <span className="theme-option-emoji">{key === 'none' ? '⊘' : t.emoji}</span>
+                    <span className="theme-option-label">{t.label}</span>
+                  </button>
+                ))}
+              </div>
             </div>
 
             {media.length > 0 && (

@@ -485,9 +485,70 @@ body::before {
   font-size: 1.2rem;
 }
 
+/* THEME PICKER (main app) */
+.theme-picker-main {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.theme-label {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.theme-grid {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.theme-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  border: 2px solid #eee;
+  background: var(--card);
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 64px;
+}
+.theme-option:hover {
+  border-color: var(--opt-accent, #ccc);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.theme-option.active {
+  border-color: var(--opt-accent, var(--secondary));
+  background: rgba(78, 205, 196, 0.06);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+}
+
+.theme-option-emoji { font-size: 1.3rem; }
+.theme-option-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--text-light);
+  font-family: 'Quicksand', sans-serif;
+}
+
+/* Themed app background */
+.app[style] {
+  background: var(--theme-bg, var(--bg));
+}
+
 @media (max-width: 600px) {
   .logo { font-size: 1.9rem; }
   .collage.count-many { grid-template-columns: repeat(2, 1fr); }
   .uploaded-grid { grid-template-columns: repeat(3, 1fr); }
   .tab { padding: 10px 18px; font-size: 0.85rem; }
+  .theme-option { min-width: 52px; padding: 8px 8px; }
+  .theme-option-emoji { font-size: 1.1rem; }
+  .theme-option-label { font-size: 0.6rem; }
 }
