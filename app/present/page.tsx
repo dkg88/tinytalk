@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import './present.css';
 
 interface MediaItem {
   url: string;
@@ -47,7 +48,7 @@ export default function PresentPage() {
   if (media.length === 0) {
     return (
       <div style={styles.empty}>
-        <style>{presentStyles}</style>
+
         <p style={{ fontSize: '4rem' }}>📷</p>
         <h1 style={{ fontFamily: 'Fredoka, sans-serif', color: 'white' }}>No photos this week yet!</h1>
       </div>
@@ -144,45 +145,3 @@ const styles: Record<string, React.CSSProperties> = {
   },
 };
 
-const presentStyles = `
-  @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Quicksand:wght@400;600&display=swap');
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  .tv-collage {
-    display: grid;
-    gap: 10px;
-    width: 92vw;
-    max-height: 82vh;
-  }
-  .tv-cell {
-    border-radius: 14px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: transform 0.3s;
-    background: #222;
-    aspect-ratio: 1;
-  }
-  .tv-cell:hover { transform: scale(1.03); }
-  .tv-cell img, .tv-cell video { width: 100%; height: 100%; object-fit: cover; }
-
-  .tv-slideshow {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100vw;
-    height: 100vh;
-    cursor: pointer;
-  }
-  .tv-slideshow img, .tv-slideshow video {
-    max-width: 94vw;
-    max-height: 90vh;
-    object-fit: contain;
-    border-radius: 14px;
-    animation: fadeIn 0.5s ease;
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.98); }
-    to { opacity: 1; transform: scale(1); }
-  }
-`;
