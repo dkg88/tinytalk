@@ -8,6 +8,7 @@ interface MediaItem {
   pathname: string;
   type: 'image' | 'video';
   uploadedAt?: string;
+  capturedAt?: string;
 }
 
 // Theme definitions
@@ -208,8 +209,9 @@ export default function PresentPage() {
     const item = media[currentIdx];
     const isFirst = currentIdx === 0;
     const isLast = currentIdx === media.length - 1;
-    const dayName = item.uploadedAt
-      ? new Date(item.uploadedAt).toLocaleDateString('en-US', { weekday: 'long' })
+    const dayDate = item.capturedAt || item.uploadedAt;
+    const dayName = dayDate
+      ? new Date(dayDate).toLocaleDateString('en-US', { weekday: 'long' })
       : '';
 
     return (

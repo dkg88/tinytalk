@@ -26,16 +26,20 @@ export async function GET(request: NextRequest) {
       .filter(b => !b.pathname.endsWith('theme.json'))
       .map(b => {
         const filename = b.pathname.split('/').pop() || '';
+        // Parse timestamp from filename (e.g. "image_1709123456789.jpg")
+        const tsMatch = filename.match(/^(?:image|video)_(\d+)\./);
+        const capturedTs = tsMatch ? Number(tsMatch[1]) : b.uploadedAt.getTime();
         return {
           url: b.url,
           pathname: b.pathname,
           type: filename.startsWith('video_') ? 'video' : 'image',
           uploadedAt: b.uploadedAt.toISOString(),
+          capturedAt: new Date(capturedTs).toISOString(),
           size: b.size,
         };
       });
 
-    items.sort((a, b) => new Date(a.uploadedAt).getTime() - new Date(b.uploadedAt).getTime());
+    items.sort((a, b) => new Date(a.capturedAt).getTime() - new Date(b.capturedAt).getTime());
 
     return NextResponse.json({ items });
   } catch {

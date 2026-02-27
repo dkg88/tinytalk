@@ -8,6 +8,7 @@ interface MediaItem {
   pathname: string;
   type: 'image' | 'video';
   uploadedAt: string;
+  capturedAt?: string;
   size: number;
 }
 
