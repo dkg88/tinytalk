@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import './present.css';
 
 interface MediaItem {
@@ -11,9 +11,7 @@ interface MediaItem {
 
 export default function PresentPage() {
   const [media, setMedia] = useState<MediaItem[]>([]);
-  const [mode, setMode] = useState<'collage' | 'slideshow'>('collage');
-  const [currentIdx, setCurrentIdx] = useState(0);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const [currentIdx, setCurrentIdx] = useState<number | null>(null);
 
   useEffect(() => {
     fetch('/api/photos')
@@ -22,74 +20,87 @@ export default function PresentPage() {
       .catch(() => {});
   }, []);
 
-  // Slideshow auto-advance
-  useEffect(() => {
-    if (mode === 'slideshow' && media.length > 0) {
-      timerRef.current = setTimeout(() => {
-        setCurrentIdx(prev => (prev + 1) % media.length);
-      }, 4000);
-    }
-    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
-  }, [mode, currentIdx, media.length]);
-
-  // Keyboard
+  // Keyboard navigation
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight') setCurrentIdx(prev => (prev + 1) % media.length);
-      if (e.key === 'ArrowLeft') setCurrentIdx(prev => (prev - 1 + media.length) % media.length);
-      if (e.key === ' ') { e.preventDefault(); setMode(m => m === 'collage' ? 'slideshow' : 'collage'); }
+      if (currentIdx === null) return;
+      if (e.key === 'ArrowRight') setCurrentIdx(prev => Math.min((prev ?? 0) + 1, media.length - 1));
+      if (e.key === 'ArrowLeft') setCurrentIdx(prev => Math.max((prev ?? 0) - 1, 0));
+      if (e.key === 'Escape') setCurrentIdx(null);
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [media.length]);
+  }, [currentIdx, media.length]);
 
   const weekLabel = getWeekLabel();
 
   if (media.length === 0) {
     return (
       <div style={styles.empty}>
-
         <p style={{ fontSize: '4rem' }}>📷</p>
         <h1 style={{ fontFamily: 'Fredoka, sans-serif', color: 'white' }}>No photos this week yet!</h1>
       </div>
     );
   }
 
-  return (
-    <>
-      <style>{presentStyles}</style>
+  // Single photo/video view
+  if (currentIdx !== null) {
+    const item = media[currentIdx];
+    const isFirst = currentIdx === 0;
+    const isLast = currentIdx === media.length - 1;
+
+    return (
       <div style={styles.container}>
-        {mode === 'collage' ? (
-          <>
-            <h1 style={styles.title}>{weekLabel}</h1>
-            <div className="tv-collage" style={{
-              gridTemplateColumns: `repeat(${Math.ceil(Math.sqrt(media.length))}, 1fr)`,
-            }}>
-              {media.map((item, i) => (
-                <div key={item.pathname} className="tv-cell" onClick={() => { setCurrentIdx(i); setMode('slideshow'); }}>
-                  {item.type === 'video' ? (
-                    <video src={item.url} muted playsInline />
-                  ) : (
-                    <img src={item.url} alt="" />
-                  )}
-                </div>
-              ))}
-            </div>
-            <p style={styles.hint}>Tap a photo to start slideshow · Press Space to toggle</p>
-          </>
-        ) : (
-          <div className="tv-slideshow" onClick={() => setCurrentIdx(prev => (prev + 1) % media.length)}>
-            {media[currentIdx]?.type === 'video' ? (
-              <video src={media[currentIdx].url} controls autoPlay playsInline />
+        <button className="back-to-collage" onClick={() => setCurrentIdx(null)}>
+          ← All Photos
+        </button>
+
+        <div className="viewer">
+          {!isFirst && (
+            <button className="nav-btn nav-prev" onClick={() => setCurrentIdx(currentIdx - 1)}>
+              ‹
+            </button>
+          )}
+
+          <div className="viewer-content">
+            {item.type === 'video' ? (
+              <video key={item.url} src={item.url} controls autoPlay playsInline />
             ) : (
-              <img src={media[currentIdx]?.url} alt="" />
+              <img src={item.url} alt="" />
             )}
-            <div style={styles.counter}>{currentIdx + 1} / {media.length}</div>
-            <p style={styles.hint}>Tap to advance · Press Space for collage view</p>
           </div>
-        )}
+
+          {!isLast && (
+            <button className="nav-btn nav-next" onClick={() => setCurrentIdx(currentIdx + 1)}>
+              ›
+            </button>
+          )}
+        </div>
+
+        <div style={styles.counter}>{currentIdx + 1} / {media.length}</div>
       </div>
-    </>
+    );
+  }
+
+  // Collage view
+  return (
+    <div style={styles.container}>
+      <h1 style={styles.title}>{weekLabel}</h1>
+      <div className="tv-collage" style={{
+        gridTemplateColumns: `repeat(${Math.ceil(Math.sqrt(media.length))}, 1fr)`,
+      }}>
+        {media.map((item, i) => (
+          <div key={item.pathname} className="tv-cell" onClick={() => setCurrentIdx(i)}>
+            {item.type === 'video' ? (
+              <video src={item.url} muted playsInline />
+            ) : (
+              <img src={item.url} alt="" />
+            )}
+          </div>
+        ))}
+      </div>
+      <p style={styles.hint}>Tap a photo to start</p>
+    </div>
   );
 }
 
@@ -112,6 +123,7 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: 'center',
     justifyContent: 'center',
     padding: '20px',
+    position: 'relative',
   },
   empty: {
     minHeight: '100vh',
@@ -135,13 +147,10 @@ const styles: Record<string, React.CSSProperties> = {
     fontFamily: 'Quicksand, sans-serif',
   },
   counter: {
-    position: 'absolute',
-    bottom: '20px',
-    left: '50%',
-    transform: 'translateX(-50%)',
     color: 'rgba(255,255,255,0.4)',
     fontFamily: 'Quicksand, sans-serif',
     fontWeight: 600,
+    marginTop: '16px',
+    fontSize: '1rem',
   },
 };
-
