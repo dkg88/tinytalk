@@ -309,7 +309,10 @@ export default function TinyTalk() {
       <div className="app" style={themeData.accent ? {
         '--theme-bg': themeData.bg,
         '--theme-accent': themeData.accent,
+        '--theme-emoji': themeData.emoji ? `"${themeData.emoji}"` : '""',
+        '--theme-bg-alpha': themeData.bg + 'e6',
       } as React.CSSProperties : undefined}>
+        {themeData.emoji && <div className="app-emoji-bg" />}
         {/* Header */}
         <div className="header">
           <h1 className="logo">Tiny Talk</h1>

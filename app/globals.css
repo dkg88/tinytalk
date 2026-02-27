@@ -146,7 +146,7 @@ body::before {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(255,248,240,0.9);
+  background: var(--theme-bg-alpha, rgba(255,248,240,0.9));
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 }
@@ -541,6 +541,37 @@ body::before {
 /* Themed app background */
 .app[style] {
   background: var(--theme-bg, var(--bg));
+}
+
+/* Emoji background pattern (main app) */
+.app-emoji-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.app-emoji-bg::before {
+  content: var(--theme-emoji, "");
+  position: absolute;
+  inset: -50%;
+  font-size: 3rem;
+  line-height: 4rem;
+  letter-spacing: 2rem;
+  word-spacing: 2rem;
+  white-space: pre-wrap;
+  word-break: break-all;
+  opacity: 0.08;
+  animation: emojiDrift 60s linear infinite;
+  text-shadow:
+    6rem 2rem 0 currentColor,
+    12rem -1rem 0 currentColor,
+    18rem 3rem 0 currentColor,
+    -3rem 5rem 0 currentColor;
+}
+@keyframes emojiDrift {
+  from { transform: translate(0, 0) rotate(-5deg); }
+  to { transform: translate(-3rem, -4rem) rotate(-5deg); }
 }
 
 /* OFFLINE BANNER */
