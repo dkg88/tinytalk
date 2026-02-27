@@ -40,7 +40,7 @@ function getWeekLabel(date: Date = new Date()): string {
 // ============================================================
 // MAIN APP
 // ============================================================
-export default function TinyTedTalk() {
+export default function TinyTalk() {
   const [authed, setAuthed] = useState(false);
   const [pin, setPin] = useState('');
   const [pinError, setPinError] = useState('');
@@ -237,7 +237,7 @@ export default function TinyTedTalk() {
         <div className="pin-screen">
           <div className="pin-card">
             <div className="pin-icon">🎤</div>
-            <h1 className="pin-title">Tiny Ted Talk</h1>
+            <h1 className="pin-title">Tiny Talk</h1>
             <p className="pin-subtitle">Enter your family PIN</p>
             <div className="pin-input-row">
               <input
@@ -268,7 +268,7 @@ export default function TinyTedTalk() {
       <div className="app">
         {/* Header */}
         <div className="header">
-          <h1 className="logo">Tiny Ted Talk</h1>
+          <h1 className="logo">Tiny Talk</h1>
           <p className="subtitle">Weekly photo presentations by your little one</p>
           <div className="week-badge">{displayWeekLabel}</div>
           {viewingWeek && (

@@ -1,4 +1,4 @@
-# 🎤 Tiny Ted Talk
+# 🎤 Tiny Talk
 
 A simple family app for weekly photo presentations. Upload photos throughout the week, then pull them up on the TV for your toddler's "mini presentation" about their week.
 
@@ -16,7 +16,7 @@ A simple family app for weekly photo presentations. Upload photos throughout the
 git init
 git add .
 git commit -m "Initial commit"
-git remote add origin https://github.com/YOUR_USERNAME/tiny-ted-talk.git
+git remote add origin https://github.com/YOUR_USERNAME/tiny-talk.git
 git push -u origin main
 ```
 

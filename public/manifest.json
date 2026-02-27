@@ -1,6 +1,6 @@
 {
-  "name": "Tiny Ted Talk",
-  "short_name": "TinyTedTalk",
+  "name": "Tiny Talk",
+  "short_name": "TinyTalk",
   "description": "Weekly photo presentations by your little one",
   "start_url": "/",
   "display": "standalone",
