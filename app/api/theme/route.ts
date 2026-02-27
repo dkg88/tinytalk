@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readFile, writeFile, mkdir } from 'fs/promises';
-import path from 'path';
+import { list, put } from '@vercel/blob';
 
 function getWeekKey(): string {
   const now = new Date();
@@ -13,10 +12,18 @@ function getWeekKey(): string {
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const week = searchParams.get('week') || getWeekKey();
-  const themePath = path.join(process.cwd(), 'public', 'uploads', 'weeks', week, 'theme.json');
+  const prefix = `weeks/${week}/theme.json`;
 
   try {
-    const data = JSON.parse(await readFile(themePath, 'utf-8'));
+    const { blobs } = await list({ prefix });
+    const themeBlob = blobs.find(b => b.pathname === `weeks/${week}/theme.json`);
+
+    if (!themeBlob) {
+      return NextResponse.json({ theme: 'none' });
+    }
+
+    const res = await fetch(themeBlob.url);
+    const data = await res.json();
     return NextResponse.json({ theme: data.theme || 'none' });
   } catch {
     return NextResponse.json({ theme: 'none' });
@@ -26,14 +33,16 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const { week, theme } = await request.json();
   const weekKey = week || getWeekKey();
-  const weekDir = path.join(process.cwd(), 'public', 'uploads', 'weeks', weekKey);
-  const themePath = path.join(weekDir, 'theme.json');
+  const pathname = `weeks/${weekKey}/theme.json`;
 
   try {
-    await mkdir(weekDir, { recursive: true });
-    await writeFile(themePath, JSON.stringify({ theme }), 'utf-8');
+    await put(pathname, JSON.stringify({ theme }), {
+      access: 'public',
+      addRandomSuffix: false,
+      contentType: 'application/json',
+    });
     return NextResponse.json({ ok: true, theme });
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: 'Failed to save theme' }, { status: 500 });
   }
 }

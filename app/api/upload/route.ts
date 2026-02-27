@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
+import { put } from '@vercel/blob';
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,16 +14,13 @@ export async function POST(request: NextRequest) {
 
     const ext = file.name.split('.').pop() || (type === 'video' ? 'mp4' : 'jpg');
     const filename = `${type}_${Date.now()}.${ext}`;
-    const relPath = `uploads/weeks/${week}/${filename}`;
-    const absDir = path.join(process.cwd(), 'public', 'uploads', 'weeks', week);
+    const pathname = `weeks/${week}/${filename}`;
 
-    await mkdir(absDir, { recursive: true });
-    const buffer = Buffer.from(await file.arrayBuffer());
-    await writeFile(path.join(absDir, filename), buffer);
+    const blob = await put(pathname, file, { access: 'public' });
 
     const item = {
-      url: `/${relPath}`,
-      pathname: `weeks/${week}/${filename}`,
+      url: blob.url,
+      pathname: blob.pathname,
       type: type || 'image',
       uploadedAt: new Date().toISOString(),
       size: file.size,

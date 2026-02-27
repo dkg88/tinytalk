@@ -1,31 +1,38 @@
 import { NextResponse } from 'next/server';
-import { readdir } from 'fs/promises';
-import path from 'path';
+import { list } from '@vercel/blob';
 
 export async function GET() {
-  const weeksDir = path.join(process.cwd(), 'public', 'uploads', 'weeks');
-
   try {
-    const weekFolders = await readdir(weeksDir);
+    const { blobs } = await list({ prefix: 'weeks/' });
 
-    const weeks = await Promise.all(
-      weekFolders
-        .filter(f => !f.startsWith('.'))
-        .map(async (weekKey) => {
-          const weekPath = path.join(weeksDir, weekKey);
-          const files = await readdir(weekPath);
-          const visibleFiles = files.filter(f => !f.startsWith('.'));
+    // Group blobs by week key
+    const weekMap = new Map<string, { url: string; type: string }[]>();
 
-          return {
-            weekKey,
-            label: getWeekLabel(weekKey),
-            items: visibleFiles.map(f => ({
-              url: `/uploads/weeks/${weekKey}/${f}`,
-              type: f.startsWith('video_') ? 'video' : 'image',
-            })),
-          };
-        })
-    );
+    for (const blob of blobs) {
+      // pathname: "weeks/{weekKey}/{filename}"
+      const parts = blob.pathname.split('/');
+      if (parts.length < 3) continue;
+
+      const weekKey = parts[1];
+      const filename = parts[2];
+
+      // Skip theme config files
+      if (filename === 'theme.json') continue;
+
+      if (!weekMap.has(weekKey)) {
+        weekMap.set(weekKey, []);
+      }
+      weekMap.get(weekKey)!.push({
+        url: blob.url,
+        type: filename.startsWith('video_') ? 'video' : 'image',
+      });
+    }
+
+    const weeks = Array.from(weekMap.entries()).map(([weekKey, items]) => ({
+      weekKey,
+      label: getWeekLabel(weekKey),
+      items,
+    }));
 
     weeks.sort((a, b) => b.weekKey.localeCompare(a.weekKey));
 

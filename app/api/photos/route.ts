@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readdir, stat } from 'fs/promises';
-import path from 'path';
+import { list } from '@vercel/blob';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -18,31 +17,28 @@ export async function GET(request: NextRequest) {
 
   // List photos for a week
   const weekKey = week || getWeekKey();
-  const weekDir = path.join(process.cwd(), 'public', 'uploads', 'weeks', weekKey);
+  const prefix = `weeks/${weekKey}/`;
 
   try {
-    const files = await readdir(weekDir);
+    const { blobs } = await list({ prefix });
 
-    const items = await Promise.all(
-      files
-        .filter(f => !f.startsWith('.'))
-        .map(async (f) => {
-          const fileStat = await stat(path.join(weekDir, f));
-          return {
-            url: `/uploads/weeks/${weekKey}/${f}`,
-            pathname: `weeks/${weekKey}/${f}`,
-            type: f.startsWith('video_') ? 'video' : 'image',
-            uploadedAt: fileStat.mtime.toISOString(),
-            size: fileStat.size,
-          };
-        })
-    );
+    const items = blobs
+      .filter(b => !b.pathname.endsWith('theme.json'))
+      .map(b => {
+        const filename = b.pathname.split('/').pop() || '';
+        return {
+          url: b.url,
+          pathname: b.pathname,
+          type: filename.startsWith('video_') ? 'video' : 'image',
+          uploadedAt: b.uploadedAt.toISOString(),
+          size: b.size,
+        };
+      });
 
     items.sort((a, b) => new Date(a.uploadedAt).getTime() - new Date(b.uploadedAt).getTime());
 
     return NextResponse.json({ items });
   } catch {
-    // Directory doesn't exist yet — no photos
     return NextResponse.json({ items: [] });
   }
 }
