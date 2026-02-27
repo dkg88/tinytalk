@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { PWAProvider } from './pwa';
 
 export const metadata: Metadata = {
   title: 'Tiny Talk',
@@ -24,7 +25,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         <link rel="apple-touch-icon" href="/icon-192.png" />
       </head>
-      <body>{children}</body>
+      <body>
+        <PWAProvider />
+        {children}
+      </body>
     </html>
   );
 }
