@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Coral background with iOS-style rounded corners -->
+  <rect width="512" height="512" rx="108" fill="#FF6B6B"/>
+
+  <g transform="translate(256, 222)">
+    <!-- Mic head (pill/capsule shape) -->
+    <rect x="-68" y="-154" width="136" height="192" rx="68" fill="white"/>
+
+    <!-- Grille slots (coral lines on white head) -->
+    <line x1="-34" y1="-114" x2="34" y2="-114" stroke="#FF6B6B" stroke-width="9" stroke-linecap="round"/>
+    <line x1="-34" y1="-84" x2="34" y2="-84" stroke="#FF6B6B" stroke-width="9" stroke-linecap="round"/>
+    <line x1="-34" y1="-54" x2="34" y2="-54" stroke="#FF6B6B" stroke-width="9" stroke-linecap="round"/>
+    <line x1="-34" y1="-24" x2="34" y2="-24" stroke="#FF6B6B" stroke-width="9" stroke-linecap="round"/>
+
+    <!-- Band / ring around lower mic head -->
+    <rect x="-78" y="-10" width="156" height="24" rx="4" fill="white"/>
+
+    <!-- Pivot knobs on sides -->
+    <circle cx="-78" cy="2" r="14" fill="white"/>
+    <circle cx="78" cy="2" r="14" fill="white"/>
+
+    <!-- Yoke (U-shaped cradle) -->
+    <path d="M-78,2 C-78,112 0,132 0,132" fill="none" stroke="white" stroke-width="18" stroke-linecap="round"/>
+    <path d="M78,2 C78,112 0,132 0,132" fill="none" stroke="white" stroke-width="18" stroke-linecap="round"/>
+
+    <!-- Stem -->
+    <line x1="0" y1="132" x2="0" y2="184" stroke="white" stroke-width="18" stroke-linecap="round"/>
+
+    <!-- Base -->
+    <line x1="-48" y1="188" x2="48" y2="188" stroke="white" stroke-width="18" stroke-linecap="round"/>
+  </g>
+</svg>
