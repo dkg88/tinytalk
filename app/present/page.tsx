@@ -159,7 +159,7 @@ export default function PresentPage() {
   const themeStyle = {
     '--theme-bg': themeData.bg,
     '--theme-accent': themeData.accent || 'rgba(255,255,255,0.3)',
-    '--theme-emoji': themeData.emoji ? `"${(themeData.emoji + ' ').repeat(200)}"` : '""',
+    '--theme-emoji': themeData.emoji ? `"${(themeData.emoji + ' ').repeat(500)}"` : '""',
   } as React.CSSProperties;
 
   // Collage click → start countdown
