@@ -5,7 +5,7 @@ import { PWAProvider } from './pwa';
 export const metadata: Metadata = {
   title: 'Tiny Talk',
   description: 'Weekly photo presentations by your little one',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
+  viewport: 'width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover',
   manifest: '/manifest.json',
   themeColor: '#FF6B6B',
   appleWebApp: {

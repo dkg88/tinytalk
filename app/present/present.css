@@ -6,6 +6,7 @@
    ============================================================ */
 .present-wrapper {
   min-height: 100vh;
+  min-height: 100dvh;
   background: var(--theme-bg, #1a1a2e);
   display: flex;
   flex-direction: column;
@@ -14,6 +15,8 @@
   position: relative;
   overflow: hidden;
   transition: background 0.5s ease;
+  /* Fill into safe areas (notch, home indicator) */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 /* Emoji background pattern */
@@ -53,9 +56,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 16px;
   width: 100%;
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .present-empty {
@@ -64,6 +68,7 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
+  min-height: 100dvh;
   position: relative;
   z-index: 1;
 }
@@ -171,7 +176,8 @@
 
 .viewer-content img, .viewer-content video {
   max-width: 100%;
-  max-height: 80vh;
+  max-height: 86vh;
+  max-height: 86dvh;
   object-fit: contain;
   border-radius: 14px;
   animation: fadeIn 0.4s ease;
@@ -417,5 +423,64 @@
   .day-label {
     font-size: 0.85rem;
     padding: 5px 14px;
+  }
+}
+
+/* ============================================================
+   TV / LANDSCAPE — iPhone mirrored to TV via AirPlay
+   ============================================================ */
+@media (orientation: landscape) {
+  .present-container {
+    padding: 10px 16px;
+  }
+  .present-title {
+    font-size: 1.6rem;
+    margin-bottom: 8px;
+  }
+  .theme-picker {
+    margin-bottom: 10px;
+  }
+  .tv-collage {
+    width: 96vw;
+    max-height: 80vh;
+    max-height: 80dvh;
+  }
+  .viewer {
+    max-width: 98vw;
+  }
+  .viewer-content img, .viewer-content video {
+    max-height: 90vh;
+    max-height: 90dvh;
+  }
+  .nav-btn {
+    width: 56px;
+    height: 56px;
+    font-size: 2rem;
+  }
+  .day-label {
+    font-size: 1.1rem;
+    padding: 6px 22px;
+    bottom: 12px;
+  }
+  .present-counter {
+    margin-top: 6px;
+  }
+  .present-hint {
+    margin-top: 6px;
+  }
+  .back-to-collage {
+    top: 10px;
+    left: 10px;
+    padding: 6px 14px;
+    font-size: 0.8rem;
+  }
+  .countdown-number {
+    font-size: 10rem;
+  }
+  .finale-emoji {
+    font-size: 5rem;
+  }
+  .finale-title {
+    font-size: 3rem;
   }
 }
