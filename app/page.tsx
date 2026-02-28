@@ -22,6 +22,11 @@ const THEMES: Record<string, { label: string; emoji: string; bg: string; accent:
   train:      { label: 'Train',      emoji: '\u{1F682}\u{1F683}', bg: '#fff3e0', accent: '#F0B27A' },
   space:      { label: 'Space',      emoji: '\u{1F680}\u{2B50}',  bg: '#ede7f6', accent: '#A78BFA' },
   ocean:      { label: 'Ocean',      emoji: '\u{1F419}\u{1F420}', bg: '#e0f2f1', accent: '#4ECDC4' },
+  rainbow:    { label: 'Rainbow',   emoji: '\u{1F308}\u{2B50}',  bg: '#fce4ec', accent: '#E91E63' },
+  construct:  { label: 'Construction', emoji: '\u{1F69C}\u{1F3D7}', bg: '#fff8e1', accent: '#FFA000' },
+  airplane:   { label: 'Airplane',  emoji: '\u{2708}\u{2601}',   bg: '#e8eaf6', accent: '#7986CB' },
+  farm:       { label: 'Farm',      emoji: '\u{1F404}\u{1F33E}', bg: '#f1f8e9', accent: '#8BC34A' },
+  bug:        { label: 'Bug',       emoji: '\u{1F41B}\u{1F41E}', bg: '#fff3e0', accent: '#FF7043' },
 };
 
 interface WeekData {
