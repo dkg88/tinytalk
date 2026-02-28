@@ -12,6 +12,10 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+html {
+  background: var(--bg);
+}
+
 body {
   font-family: 'Quicksand', sans-serif;
   background: var(--bg);

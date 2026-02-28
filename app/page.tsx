@@ -385,6 +385,16 @@ export default function TinyTalk() {
 
   const themeData = THEMES[theme] || THEMES.none;
 
+  // Sync theme background to html+body so it fills safe areas edge-to-edge in landscape
+  useEffect(() => {
+    document.documentElement.style.background = themeData.bg;
+    document.body.style.background = themeData.bg;
+    return () => {
+      document.documentElement.style.background = '';
+      document.body.style.background = '';
+    };
+  }, [themeData.bg]);
+
   // ============================================================
   // MAIN APP
   // ============================================================
