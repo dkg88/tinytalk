@@ -145,11 +145,9 @@ export default function TinyTalk() {
   const [loading, setLoading] = useState(true);
   const [fullscreenIdx, setFullscreenIdx] = useState<number | null>(null);
   const [tvMode, setTvMode] = useState(false);
-  const [slideshowActive, setSlideshowActive] = useState(false);
   const [weeks, setWeeks] = useState<WeekData[]>([]);
   const [viewingWeek, setViewingWeek] = useState<string | null>(null);
   const [theme, setTheme] = useState('none');
-  const slideshowRef = useRef<NodeJS.Timeout | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Check auth on mount
@@ -309,27 +307,14 @@ export default function TinyTalk() {
     }
   };
 
-  // Slideshow
+  // Start viewing from first photo
   const startSlideshow = () => {
     if (media.length === 0) return;
     setFullscreenIdx(0);
-    setSlideshowActive(true);
   };
-
-  useEffect(() => {
-    if (slideshowActive && fullscreenIdx !== null) {
-      slideshowRef.current = setTimeout(() => {
-        setFullscreenIdx(prev => (prev !== null ? (prev + 1) % media.length : 0));
-      }, 4000);
-    }
-    return () => {
-      if (slideshowRef.current) clearTimeout(slideshowRef.current);
-    };
-  }, [slideshowActive, fullscreenIdx, media.length]);
 
   const closeFullscreen = () => {
     setFullscreenIdx(null);
-    setSlideshowActive(false);
   };
 
   // Keyboard
@@ -605,7 +590,7 @@ export default function TinyTalk() {
           }}>›</button>
           <div className="fs-content" onClick={e => e.stopPropagation()}>
             {media[fullscreenIdx]?.type === 'video' ? (
-              <video src={media[fullscreenIdx].url} controls autoPlay playsInline />
+              <video src={media[fullscreenIdx].url} controls playsInline />
             ) : (
               <img src={media[fullscreenIdx]?.url} alt="" />
             )}

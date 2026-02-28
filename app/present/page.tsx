@@ -236,7 +236,7 @@ export default function PresentPage() {
 
             <div className="viewer-content">
               {item.type === 'video' ? (
-                <video key={item.url} src={item.url} controls autoPlay playsInline preload="auto" />
+                <video key={item.url} src={item.url} controls playsInline preload="auto" />
               ) : (
                 <img src={item.url} alt="" />
               )}
