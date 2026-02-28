@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { upload } from '@vercel/blob/client';
 
 // Types
 interface MediaItem {
@@ -49,6 +50,81 @@ function getWeekLabel(date: Date = new Date()): string {
   return `Week of ${start.toLocaleDateString('en-US', opts)} – ${end.toLocaleDateString('en-US', opts)}`;
 }
 
+/** Extract EXIF DateTimeOriginal from a JPEG file (client-side, no dependencies). */
+async function getExifCaptureDate(file: File): Promise<number | null> {
+  if (!file.type.startsWith('image/')) return null;
+  try {
+    const slice = file.slice(0, 65536);
+    const buf = await slice.arrayBuffer();
+    const view = new DataView(buf);
+    if (view.byteLength < 4 || view.getUint16(0) !== 0xFFD8) return null;
+
+    let offset = 2;
+    while (offset < view.byteLength - 4) {
+      const marker = view.getUint16(offset);
+      offset += 2;
+      if (marker === 0xFFE1) {
+        // APP1 — EXIF
+        const len = view.getUint16(offset);
+        offset += 2;
+        if (offset + 6 > view.byteLength) return null;
+        const hdr = String.fromCharCode(
+          view.getUint8(offset), view.getUint8(offset + 1),
+          view.getUint8(offset + 2), view.getUint8(offset + 3),
+        );
+        if (hdr !== 'Exif') {
+          offset += len - 2; // skip non-Exif APP1 (e.g. XMP) and keep scanning
+          continue;
+        }
+
+        const tiff = offset + 6;
+        const le = view.getUint16(tiff) === 0x4949; // little-endian?
+        const ifdOff = tiff + view.getUint32(tiff + 4, le);
+        const ifdCnt = view.getUint16(ifdOff, le);
+
+        // Find ExifIFD pointer (tag 0x8769)
+        let exifIfd = 0;
+        for (let i = 0; i < ifdCnt; i++) {
+          const e = ifdOff + 2 + i * 12;
+          if (e + 12 > view.byteLength) break;
+          if (view.getUint16(e, le) === 0x8769) {
+            exifIfd = tiff + view.getUint32(e + 8, le);
+            break;
+          }
+        }
+        if (!exifIfd || exifIfd + 2 > view.byteLength) return null;
+
+        // Find DateTimeOriginal (tag 0x9003)
+        const exifCnt = view.getUint16(exifIfd, le);
+        for (let i = 0; i < exifCnt; i++) {
+          const e = exifIfd + 2 + i * 12;
+          if (e + 12 > view.byteLength) break;
+          if (view.getUint16(e, le) === 0x9003) {
+            const valOff = tiff + view.getUint32(e + 8, le);
+            if (valOff + 19 > view.byteLength) return null;
+            let s = '';
+            for (let j = 0; j < 19; j++) s += String.fromCharCode(view.getUint8(valOff + j));
+            const m = s.match(/(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
+            if (m) {
+              const d = new Date(`${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}`);
+              return isNaN(d.getTime()) ? null : d.getTime();
+            }
+          }
+        }
+        return null;
+      }
+      if (marker >= 0xFFE0 && offset + 2 <= view.byteLength) {
+        const segLen = view.getUint16(offset);
+        if (segLen < 2) break;
+        offset += segLen;
+      } else {
+        break;
+      }
+    }
+  } catch { /* ignore parse errors */ }
+  return null;
+}
+
 // ============================================================
 // MAIN APP
 // ============================================================
@@ -60,6 +136,7 @@ export default function TinyTalk() {
   const [media, setMedia] = useState<MediaItem[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadError, setUploadError] = useState('');
   const [loading, setLoading] = useState(true);
   const [fullscreenIdx, setFullscreenIdx] = useState<number | null>(null);
   const [tvMode, setTvMode] = useState(false);
@@ -154,46 +231,62 @@ export default function TinyTalk() {
     }
   };
 
-  // Upload
+  // Upload — files go directly from browser to Vercel Blob (no body-size limit)
   const handleFiles = async (files: FileList) => {
     if (files.length === 0) return;
     setUploading(true);
     setUploadProgress(0);
+    setUploadError('');
 
-    const total = files.length;
+    const uploadable = Array.from(files).filter(
+      f => f.type.startsWith('image/') || f.type.startsWith('video/')
+    );
+    if (uploadable.length === 0) { setUploading(false); return; }
+    const total = uploadable.length;
     let done = 0;
+    let lastError = '';
+    const weekKey = viewingWeek || getWeekKey();
 
-    for (const file of Array.from(files)) {
+    for (const file of uploadable) {
       const isVideo = file.type.startsWith('video/');
-      const isImage = file.type.startsWith('image/');
-      if (!isVideo && !isImage) continue;
 
       try {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('week', viewingWeek || getWeekKey());
-        formData.append('type', isVideo ? 'video' : 'image');
+        const type = isVideo ? 'video' : 'image';
+        let capturedTs = Date.now();
+        if (!isVideo) {
+          const exifDate = await getExifCaptureDate(file);
+          if (exifDate) capturedTs = exifDate;
+        }
 
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
+        const ext = file.name.split('.').pop() || (isVideo ? 'mp4' : 'jpg');
+        const pathname = `weeks/${weekKey}/${type}_${capturedTs}.${ext}`;
+
+        const blob = await upload(pathname, file, {
+          access: 'public',
+          handleUploadUrl: '/api/upload',
         });
 
-        if (res.ok) {
-          const data = await res.json();
-          setMedia(prev => [...prev, data.item]);
-        }
+        setMedia(prev => [...prev, {
+          url: blob.url,
+          pathname: blob.pathname,
+          type,
+          uploadedAt: new Date().toISOString(),
+          capturedAt: new Date(capturedTs).toISOString(),
+          size: file.size,
+        }]);
       } catch (e) {
         console.error('Upload failed:', e);
+        lastError = `Failed to upload ${file.name}`;
       }
 
       done++;
       setUploadProgress(Math.round((done / total) * 100));
     }
 
+    if (lastError) setUploadError(lastError);
     setUploading(false);
     setUploadProgress(0);
-    loadWeeks(); // refresh history
+    loadWeeks();
   };
 
   // Delete
@@ -393,6 +486,10 @@ export default function TinyTalk() {
                 ))}
               </div>
             </div>
+
+            {uploadError && (
+              <p className="upload-error" onClick={() => setUploadError('')}>{uploadError} (tap to dismiss)</p>
+            )}
 
             {media.length > 0 && (
               <p className="photo-count"><span>{media.length}</span> memories this week</p>

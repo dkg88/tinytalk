@@ -27,7 +27,9 @@ export async function GET(request: NextRequest) {
       .map(b => {
         const filename = b.pathname.split('/').pop() || '';
         // Parse timestamp from filename (e.g. "image_1709123456789.jpg")
-        const tsMatch = filename.match(/^(?:image|video)_(\d+)\./);
+        // Match timestamp — handles both exact and random-suffix filenames
+        // e.g. "image_1709123456789.jpg" or "image_1709123456789-aBc12De.jpg"
+        const tsMatch = filename.match(/^(?:image|video)_(\d+)/);
         const capturedTs = tsMatch ? Number(tsMatch[1]) : b.uploadedAt.getTime();
         return {
           url: b.url,
