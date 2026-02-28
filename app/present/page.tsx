@@ -20,6 +20,11 @@ const THEMES: Record<string, { label: string; emoji: string; bg: string; accent:
   train:      { label: 'Train',      emoji: '\u{1F682}\u{1F683}', bg: '#3d2e1e', accent: '#F0B27A' },
   space:      { label: 'Space',      emoji: '\u{1F680}\u{2B50}',  bg: '#0d0d2b', accent: '#A78BFA' },
   ocean:      { label: 'Ocean',      emoji: '\u{1F419}\u{1F420}', bg: '#0e3b43', accent: '#4ECDC4' },
+  rainbow:    { label: 'Rainbow',   emoji: '\u{1F308}\u{2B50}',  bg: '#3b1929', accent: '#E91E63' },
+  construct:  { label: 'Construction', emoji: '\u{1F69C}\u{1F3D7}', bg: '#3d3010', accent: '#FFA000' },
+  airplane:   { label: 'Airplane',  emoji: '\u{2708}\u{2601}',   bg: '#1a1c3a', accent: '#7986CB' },
+  farm:       { label: 'Farm',      emoji: '\u{1F404}\u{1F33E}', bg: '#2a3a1e', accent: '#8BC34A' },
+  bug:        { label: 'Bug',       emoji: '\u{1F41B}\u{1F41E}', bg: '#3d2a1a', accent: '#FF7043' },
 };
 
 // Countdown overlay component
