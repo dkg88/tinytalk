@@ -252,7 +252,7 @@ export default function TinyTalk() {
 
       try {
         const type = isVideo ? 'video' : 'image';
-        let capturedTs = Date.now();
+        let capturedTs = file.lastModified || Date.now();
         if (!isVideo) {
           const exifDate = await getExifCaptureDate(file);
           if (exifDate) capturedTs = exifDate;
